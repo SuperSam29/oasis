@@ -12,6 +12,7 @@ import {
 import PropertyBookingCalendar from "@/polymet/components/property-booking-calendar";
 import { BLOCKED_DATES } from "@/polymet/data/blocked-dates";
 import { differenceInDays } from "date-fns";
+import { Separator } from "@/components/ui/separator";
 
 interface EnhancedPropertyBookingWidgetProps {
   pricing: {
@@ -66,62 +67,54 @@ export default function EnhancedPropertyBookingWidget({
       data-pol-file-name="enhanced-property-booking-widget"
       data-pol-file-type="component"
     >
-      <div
-        className="flex items-baseline justify-between"
-        data-pol-id="ci4b8l"
-        data-pol-file-name="enhanced-property-booking-widget"
-        data-pol-file-type="component"
-      >
-        <div
-          className="flex items-baseline gap-1"
-          data-pol-id="z7pntj"
-          data-pol-file-name="enhanced-property-booking-widget"
-          data-pol-file-type="component"
-        >
-          <span
-            className="text-xl font-bold"
-            data-pol-id="cd7ws5"
-            data-pol-file-name="enhanced-property-booking-widget"
-            data-pol-file-type="component"
-          >
-            {pricing.currency}
-            {pricing.basePrice}
-          </span>
-          <span
-            className="text-muted-foreground"
-            data-pol-id="rxhc0v"
-            data-pol-file-name="enhanced-property-booking-widget"
-            data-pol-file-type="component"
-          >
-            night
-          </span>
-        </div>
-        {pricing.includesFees && (
-          <span
-            className="text-sm text-muted-foreground"
-            data-pol-id="l18427"
-            data-pol-file-name="enhanced-property-booking-widget"
-            data-pol-file-type="component"
-          >
-            Prices include all fees
-          </span>
-        )}
-      </div>
+      {/* Calendar Component */}
+      <PropertyBookingCalendar
+        propertyId={propertyId}
+        onChange={handleDateChange}
+        className="booking-calendar-widget"
+      />
 
-      <div
-        className="space-y-2"
-        data-pol-id="e4j8ky"
-        data-pol-file-name="enhanced-property-booking-widget"
-        data-pol-file-type="component"
-      >
-        <PropertyBookingCalendar
-          onChange={handleDateChange}
-          propertyId={propertyId}
-          data-pol-id="er0dig"
-          data-pol-file-name="enhanced-property-booking-widget"
-          data-pol-file-type="component"
-        />
-      </div>
+      {/* Price Breakdown (shown only when dates are selected) */}
+      {nightsCount && totalPrice !== null && (
+        <>
+          <Separator className="my-4" />
+          <div
+            className="space-y-2"
+            data-pol-id="2x875y"
+            data-pol-file-name="enhanced-property-booking-widget"
+            data-pol-file-type="component"
+          >
+            <div
+              className="flex justify-between"
+              data-pol-id="7o8m7o"
+              data-pol-file-name="enhanced-property-booking-widget"
+              data-pol-file-type="component"
+            >
+              <span>
+                {pricing.currency}
+                {pricing.basePrice} x {nightsCount} nights
+              </span>
+              <span>
+                {pricing.currency}
+                {totalPrice.toLocaleString()}
+              </span>
+            </div>
+            {/* Add more details like taxes/fees if needed */}
+            <div
+              className="flex justify-between font-semibold text-lg pt-2"
+              data-pol-id="n9a2o4"
+              data-pol-file-name="enhanced-property-booking-widget"
+              data-pol-file-type="component"
+            >
+              <span>Total</span>
+              <span>
+                {pricing.currency}
+                {totalPrice.toLocaleString()}
+              </span>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

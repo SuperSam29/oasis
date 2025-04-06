@@ -12,7 +12,7 @@ interface PropertyHeaderProps {
     guests: number;
     bedrooms: number;
     beds: number;
-    bathrooms: number;
+    baths: number;
   };
 }
 
@@ -64,7 +64,7 @@ export default function PropertyHeader({
             data-pol-file-type="component"
           >
             {details.guests} guests · {details.bedrooms} bedrooms ·{" "}
-            {details.beds} beds · {details.bathrooms} bathrooms
+            {details.beds} beds · {details.baths} bathrooms
           </p>
         </div>
 

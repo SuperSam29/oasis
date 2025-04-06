@@ -27,11 +27,12 @@ interface TripDetails {
 }
 
 interface PricingDetails {
-  basePrice: number;
+  actualBasePrice: number;
+  displayPrice: number;
+  discountPercentage: number;
+  totalPrice: number;
   currency: string;
   nights: number;
-  taxes: number;
-  total: number;
 }
 
 // Add success popup component
@@ -181,8 +182,13 @@ export default function PropertyBookingConfirmation() {
     const storedCheckIn = localStorage.getItem('bookingCheckIn');
     const storedCheckOut = localStorage.getItem('bookingCheckOut');
     const storedGuests = localStorage.getItem('bookingGuests');
-    const storedBasePrice = localStorage.getItem('bookingBasePrice');
     const storedHotelId = localStorage.getItem('bookingHotelId');
+    
+    // Get new pricing fields
+    const storedDisplayPrice = localStorage.getItem('bookingDisplayPrice');
+    const storedActualBasePrice = localStorage.getItem('bookingActualBasePrice');
+    const storedDiscountPercentage = localStorage.getItem('bookingDiscountPercentage');
+    const storedTotalPrice = localStorage.getItem('bookingTotalPrice');
 
     // Check if hotel ID exists
     if (!storedHotelId) {
@@ -195,7 +201,6 @@ export default function PropertyBookingConfirmation() {
     const checkIn = storedCheckIn ? new Date(storedCheckIn) : null;
     const checkOut = storedCheckOut ? new Date(storedCheckOut) : null;
     const guests = storedGuests ? parseInt(storedGuests, 10) : 1;
-    const basePrice = storedBasePrice ? parseFloat(storedBasePrice) : 0; // Default to 0 if not found
 
     setTripDetails({
       checkIn: checkIn,
@@ -203,18 +208,21 @@ export default function PropertyBookingConfirmation() {
       guests: guests,
     });
 
-    if (checkIn && checkOut && basePrice > 0) {
+    if (checkIn && checkOut && 
+        storedDisplayPrice && 
+        storedActualBasePrice && 
+        storedDiscountPercentage && 
+        storedTotalPrice) {
+      
       const nights = Math.round((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
-      const nightlyTotal = basePrice * nights;
-      const taxes = nightlyTotal * 0.12; // Calculate 12% tax
-      const total = nightlyTotal + taxes; // Calculate total (no service fee)
       
       setPricing({
-        basePrice: basePrice,
+        actualBasePrice: parseFloat(storedActualBasePrice),
+        displayPrice: parseFloat(storedDisplayPrice),
+        discountPercentage: parseFloat(storedDiscountPercentage),
+        totalPrice: parseFloat(storedTotalPrice),
         currency: "₹", // Assuming currency is fixed for now
         nights: nights,
-        taxes: taxes,
-        total: total,
       });
     } else {
       // Handle cases where data might be missing or invalid
@@ -639,12 +647,16 @@ export default function PropertyBookingConfirmation() {
 
                 {/* Price Breakdown */}
                 {pricing ? (
-                <PropertyPriceBreakdown
-                  pricing={pricing}
-                  data-pol-id="wy34wk"
-                  data-pol-file-name="property-booking-confirmation"
-                  data-pol-file-type="page"
-                />
+                  <div className="booking-confirmation-price-details">
+                    <PropertyPriceBreakdown pricing={pricing} />
+                    {pricing.discountPercentage > 0 && (
+                      <BookingPriceAlert
+                        message={`You're saving ${pricing.discountPercentage}% with this booking`}
+                        subMessage="Limited time offer with special pricing"
+                        type="discount"
+                      />
+                    )}
+                  </div>
                 ) : (
                   <p>Calculating price...</p> // Show loading state for price
                 )}

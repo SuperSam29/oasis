@@ -1,18 +1,35 @@
 interface PriceBreakdownProps {
   pricing: {
-    basePrice: number;
+    actualBasePrice?: number;
+    displayPrice?: number;
+    discountPercentage?: number;
+    totalPrice?: number;
+    basePrice?: number; // For backward compatibility
     currency: string;
     nights: number;
-    taxes: number;
-    total: number;
+    taxes?: number; // For backward compatibility
+    total?: number; // For backward compatibility
   };
 }
 
 export default function PropertyPriceBreakdown({
   pricing,
 }: PriceBreakdownProps) {
-  const { basePrice, currency, nights, taxes, total } = pricing;
-  const nightlyTotal = basePrice * nights;
+  // Support both new and old pricing formats
+  const { 
+    actualBasePrice, displayPrice, discountPercentage, totalPrice, 
+    basePrice, currency, nights, taxes, total 
+  } = pricing;
+  
+  // Determine which format we're using
+  const isNewFormat = actualBasePrice !== undefined && displayPrice !== undefined;
+  
+  // Calculate values for display
+  const nightlyRate = isNewFormat ? (actualBasePrice! / nights) : (basePrice!);
+  const nightlyTotal = isNewFormat ? actualBasePrice! : (basePrice! * nights);
+  const finalTotal = isNewFormat ? totalPrice! : total!;
+  const discount = isNewFormat && discountPercentage ? (actualBasePrice! * (discountPercentage / 100)) : 0;
+  const taxAmount = isNewFormat ? (totalPrice! - displayPrice!) : taxes!;
 
   return (
     <div
@@ -47,7 +64,7 @@ export default function PropertyPriceBreakdown({
             data-pol-file-type="component"
           >
             {currency}
-            {basePrice.toLocaleString()} × {nights} nights
+            {nightlyRate.toLocaleString()} × {nights} nights
           </span>
           <span
             data-pol-id="yf7sgb"
@@ -58,6 +75,13 @@ export default function PropertyPriceBreakdown({
             {nightlyTotal.toLocaleString()}
           </span>
         </div>
+        {/* Show discount if using new format */}
+        {isNewFormat && discountPercentage && discountPercentage > 0 && (
+          <div className="flex justify-between text-green-600">
+            <span>Discount ({discountPercentage}%)</span>
+            <span>-{currency}{discount.toLocaleString()}</span>
+          </div>
+        )}
         <div
           className="flex justify-between"
           data-pol-id="y92qgy"
@@ -69,7 +93,7 @@ export default function PropertyPriceBreakdown({
             data-pol-file-name="property-price-breakdown"
             data-pol-file-type="component"
           >
-            Taxes
+            Taxes & Service Fee
           </span>
           <span
             data-pol-id="opj5hf"
@@ -77,7 +101,7 @@ export default function PropertyPriceBreakdown({
             data-pol-file-type="component"
           >
             {currency}
-            {taxes.toLocaleString()}
+            {taxAmount.toLocaleString()}
           </span>
         </div>
         <div
@@ -105,7 +129,7 @@ export default function PropertyPriceBreakdown({
             data-pol-file-type="component"
           >
             {currency}
-            {total.toLocaleString()}
+            {finalTotal.toLocaleString()}
           </span>
         </div>
       </div>

@@ -366,18 +366,16 @@ function Calendar({
     }
   }, [mode, blockedDates]);
 
-  // Render the month header and grid
+  // Render the month heading and calendar grid
   const renderMonth = (monthOffset: number) => {
     const monthDate = new Date(currentMonth);
     monthDate.setMonth(currentMonth.getMonth() + monthOffset);
-    const monthName = getMonthName(monthDate);
-    const year = monthDate.getFullYear();
     
     return (
-      <div className="space-y-4">
-        <div className="text-center font-medium text-base">
-          {monthName} {year}
-        </div>
+      <div>
+        <h3 className="text-center font-medium pb-2 mb-1">
+          {getMonthName(monthDate)} {monthDate.getFullYear()}
+        </h3>
         {renderCalendarGrid(monthOffset)}
       </div>
     );
@@ -427,9 +425,11 @@ function Calendar({
         </button>
       </div>
       
-      <div className="grid grid-cols-2 gap-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-10">
         {renderMonth(0)}
-        {renderMonth(1)}
+        <div className="hidden md:block">
+          {renderMonth(1)}
+        </div>
       </div>
       
       {/* Display error message */}

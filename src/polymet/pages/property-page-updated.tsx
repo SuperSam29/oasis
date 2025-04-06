@@ -47,6 +47,19 @@ export default function PropertyPageUpdated() {
         />
       </div>
 
+      {/* Booking Widget for Mobile */}
+      <div
+        className="mt-6 block md:hidden"
+        data-pol-file-name="property-page-updated"
+        data-pol-file-type="page"
+      >
+        <PropertyBookingWidgetUpdated
+          pricing={property.pricing}
+          data-pol-file-name="property-page-updated"
+          data-pol-file-type="page"
+        />
+      </div>
+
       <div
         className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8"
         data-pol-id="7wyp78"
@@ -81,7 +94,7 @@ export default function PropertyPageUpdated() {
             >
               {property.details.guests} guests · {property.details.bedrooms}{" "}
               bedrooms · {property.details.beds} beds ·{" "}
-              {property.details.bathrooms} bathrooms
+              {property.details.baths} bathrooms
             </p>
           </div>
 
@@ -118,16 +131,16 @@ export default function PropertyPageUpdated() {
           />
         </div>
 
-        {/* Updated Booking Widget */}
+        {/* Booking Widget for Desktop */}
         <div
-          className="md:col-span-1"
-          data-pol-id="mp5e7g"
+          className="hidden md:block md:col-span-1"
+          data-pol-id="uzkq05"
           data-pol-file-name="property-page-updated"
           data-pol-file-type="page"
         >
           <PropertyBookingWidgetUpdated
             pricing={property.pricing}
-            data-pol-id="r8ck0s"
+            data-pol-id="942yjz"
             data-pol-file-name="property-page-updated"
             data-pol-file-type="page"
           />
