@@ -45,6 +45,20 @@ export default function PropertyPageEnhanced() {
         />
       </div>
 
+      {/* Booking Widget for Mobile */}
+      <div
+        className="mt-6 block lg:hidden"
+        data-pol-file-name="property-page-enhanced"
+        data-pol-file-type="page"
+      >
+        <EnhancedPropertyBookingWidget
+          pricing={property.pricing}
+          propertyId={propertyId}
+          data-pol-file-name="property-page-enhanced"
+          data-pol-file-type="page"
+        />
+      </div>
+
       <div
         className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8"
         data-pol-id="vh6mp4"
@@ -88,8 +102,9 @@ export default function PropertyPageEnhanced() {
           </div>
         </div>
 
+        {/* Booking Widget for Desktop */}
         <div
-          className="lg:col-span-1"
+          className="hidden lg:block lg:col-span-1"
           data-pol-id="38yfvf"
           data-pol-file-name="property-page-enhanced"
           data-pol-file-type="page"
