@@ -93,6 +93,16 @@ export default function PropertyBookingCalendar({
             // Can't select a checkout date before checkin
             return;
           }
+          
+          // Enforce minimum 2-night stay
+          if (checkInDate) {
+            const nightsSelected = Math.round((date.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
+            if (nightsSelected < 2) {
+              setCalendarMessage("Minimum 2-night stay required.");
+              return;
+            }
+          }
+          
           setCheckOutDate(date);
         }
         // Don't close calendar automatically in direct selection mode
@@ -117,6 +127,13 @@ export default function PropertyBookingCalendar({
             setCheckInDate(date);
             setCheckOutDate(undefined);
           } else {
+            // Enforce minimum 2-night stay
+            const nightsSelected = Math.round((date.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
+            if (nightsSelected < 2) {
+              setCalendarMessage("Minimum 2-night stay required.");
+              return;
+            }
+            
             setCheckOutDate(date);
           }
         }
@@ -124,6 +141,15 @@ export default function PropertyBookingCalendar({
     } 
     // If we have a date range object (range selected via drag)
     else if ('from' in date && date.from) {
+      // Enforce minimum 2-night stay for range selections
+      if (date.from && date.to) {
+        const nightsSelected = Math.round((date.to.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24));
+        if (nightsSelected < 2) {
+          setCalendarMessage("Minimum 2-night stay required.");
+          return;
+        }
+      }
+      
       setCheckInDate(date.from);
       setCheckOutDate(date.to);
     }
@@ -549,30 +575,45 @@ export default function PropertyBookingCalendar({
               {isLoading ? (
                 <div className="p-6 text-center">Loading availability...</div>
               ) : (
-                <Calendar
-                  mode="range"
-                  selected={{ from: checkInDate, to: checkOutDate }}
-                  onSelect={(range: Date | DateRange | undefined) => {
-                    if (range && typeof range === 'object' && 'from' in range && range.from) {
-                      setCheckInDate(range.from);
-                      setCheckOutDate(range.to);
-                      setSelectingCheckIn(false);
-                      setIsInitialSelection(false);
-                      if (range.to) {
-                        setIsCalendarOpen(false);
+                <>
+                  {/* Add message about minimum stay */}
+                  <div className="px-4 py-2 text-sm text-gray-600 italic">
+                    Note: Minimum 2-night stay required
+                  </div>
+                  <Calendar
+                    mode="range"
+                    selected={{ from: checkInDate, to: checkOutDate }}
+                    onSelect={(range: Date | DateRange | undefined) => {
+                      if (range && typeof range === 'object' && 'from' in range && range.from) {
+                        // Enforce minimum 2-night stay
+                        if (range.from && range.to) {
+                          const nightsSelected = Math.round((range.to.getTime() - range.from.getTime()) / (1000 * 60 * 60 * 24));
+                          if (nightsSelected < 2) {
+                            setCalendarMessage("Minimum 2-night stay required.");
+                            return;
+                          }
+                        }
+                        
+                        setCheckInDate(range.from);
+                        setCheckOutDate(range.to);
+                        setSelectingCheckIn(false);
+                        setIsInitialSelection(false);
+                        if (range.to) {
+                          setIsCalendarOpen(false);
+                        }
+                      } else if (range === undefined) {
+                        handleClearDates();
+                      } else if (range instanceof Date) {
+                        setCheckInDate(range);
+                        setCheckOutDate(undefined);
+                        setSelectingCheckIn(false);
+                        setIsInitialSelection(false);
                       }
-                    } else if (range === undefined) {
-                      handleClearDates();
-                    } else if (range instanceof Date) {
-                      setCheckInDate(range);
-                      setCheckOutDate(undefined);
-                      setSelectingCheckIn(false);
-                      setIsInitialSelection(false);
-                    }
-                  }}
-                  blockedDates={blockedDates}
-                  className="p-0"
-                />
+                    }}
+                    blockedDates={blockedDates}
+                    className="p-0"
+                  />
+                </>
               )}
             </div>
             
