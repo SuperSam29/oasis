@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { GridIcon, X } from "lucide-react";
+import { GridIcon, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PropertyImage {
   id: number;
@@ -23,6 +23,11 @@ export default function PropertyImageGallery({
 }: PropertyImageGalleryProps) {
   const [showModal, setShowModal] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>("");
+  
+  // States for mobile fullscreen view
+  const [showFullscreen, setShowFullscreen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentCategoryImages, setCurrentCategoryImages] = useState<PropertyImage[]>([]);
 
   // Basic validation
   if (!images || images.length === 0) {
@@ -36,6 +41,7 @@ export default function PropertyImageGallery({
   // Organize images by category
   const categoriesMap: Record<string, PropertyImage[]> = {};
   const categories: string[] = [];
+  const allImagesFlat: PropertyImage[] = [];
   
   images.forEach(image => {
     if (!image.category) return;
@@ -46,6 +52,7 @@ export default function PropertyImageGallery({
     }
     
     categoriesMap[image.category].push(image);
+    allImagesFlat.push(image);
   });
 
   // Set default active category when modal opens
@@ -54,6 +61,13 @@ export default function PropertyImageGallery({
       setActiveCategory(categories[0]);
     }
   }, [showModal, categories, activeCategory]);
+  
+  // When category changes, reset the current images for the fullscreen view
+  useEffect(() => {
+    if (activeCategory) {
+      setCurrentCategoryImages(categoriesMap[activeCategory] || []);
+    }
+  }, [activeCategory]);
 
   // Create preview grid (up to 5 images)
   const previewImages = [...images];
@@ -63,6 +77,25 @@ export default function PropertyImageGallery({
   
   const mainImage = previewImages[0];
   const secondaryImages = previewImages.slice(1, 5);
+  
+  // Handlers for mobile fullscreen navigation
+  const openFullscreen = (categoryName: string, imageIndex: number) => {
+    setActiveCategory(categoryName);
+    setCurrentImageIndex(imageIndex);
+    setShowFullscreen(true);
+  };
+  
+  const handleNext = () => {
+    if (currentImageIndex < currentCategoryImages.length - 1) {
+      setCurrentImageIndex(prev => prev + 1);
+    }
+  };
+  
+  const handlePrev = () => {
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(prev => prev - 1);
+    }
+  };
 
   return (
     <>
@@ -95,7 +128,7 @@ export default function PropertyImageGallery({
         </Button>
       </div>
 
-      {/* --- Simplified Gallery Modal --- */}
+      {/* --- Main Gallery Modal --- */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="max-w-none w-full h-full md:max-w-7xl md:h-[95vh] p-0 bg-white rounded-none md:rounded-lg">
           {/* Fixed Header */}
@@ -125,33 +158,114 @@ export default function PropertyImageGallery({
             </div>
           </div>
           
-          {/* Content Area - Only shows active category */}
+          {/* Content Area - Show different views for desktop and mobile */}
           <div className="overflow-y-auto h-[calc(100%-112px)]">
             <div className="p-4 md:p-8 max-w-5xl mx-auto">
-              {/* Show only active category images */}
-              {activeCategory && (
-                <div>
-                  <h2 className="text-2xl font-semibold mb-6">{activeCategory}</h2>
-                  
-                  {/* Simple Grid for Desktop, Stack for Mobile */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                    {categoriesMap[activeCategory]?.map(image => (
-                      <div key={image.id} className="mb-4">
-                        <img
-                          src={image.url}
-                          alt={image.alt}
-                          className="w-full rounded-lg object-contain max-h-[70vh]"
-                          loading="lazy"
-                        />
-                      </div>
-                    ))}
+              {/* Desktop: Organized category view */}
+              <div className="hidden md:block">
+                {activeCategory && (
+                  <div>
+                    <h2 className="text-2xl font-semibold mb-6">{activeCategory}</h2>
+                    
+                    {/* Simple Grid for Desktop */}
+                    <div className="grid grid-cols-2 gap-6">
+                      {categoriesMap[activeCategory]?.map(image => (
+                        <div key={image.id} className="mb-4">
+                          <img
+                            src={image.url}
+                            alt={image.alt}
+                            className="w-full rounded-lg object-contain max-h-[70vh]"
+                            loading="lazy"
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+              
+              {/* Mobile: Simple Thumbnail Grid */}
+              <div className="md:hidden">
+                {activeCategory && (
+                  <div>
+                    <h2 className="text-xl font-semibold mb-4">{activeCategory}</h2>
+                    
+                    {/* Thumbnail Grid - 2 columns for mobile */}
+                    <div className="grid grid-cols-2 gap-2">
+                      {categoriesMap[activeCategory]?.map((image, index) => (
+                        <div 
+                          key={image.id} 
+                          className="aspect-square relative cursor-pointer" 
+                          onClick={() => openFullscreen(activeCategory, index)}
+                        >
+                          <img
+                            src={image.url}
+                            alt={image.alt}
+                            className="w-full h-full object-cover rounded-md"
+                            loading="lazy"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </DialogContent>
       </Dialog>
+      
+      {/* Mobile Fullscreen Image View */}
+      {showFullscreen && (
+        <div className="fixed inset-0 bg-black z-50 flex flex-col">
+          {/* Fullscreen Header */}
+          <div className="p-4 flex items-center justify-between text-white">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-full text-white" 
+              onClick={() => setShowFullscreen(false)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+            <p className="text-sm">
+              {currentImageIndex + 1} / {currentCategoryImages.length}
+            </p>
+          </div>
+          
+          {/* Fullscreen Image */}
+          <div className="flex-1 relative touch-pan-y">
+            {currentCategoryImages[currentImageIndex] && (
+              <img
+                src={currentCategoryImages[currentImageIndex].url}
+                alt={currentCategoryImages[currentImageIndex].alt}
+                className="w-full h-full object-contain"
+              />
+            )}
+            
+            {/* Navigation Buttons */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white rounded-full" 
+              onClick={handlePrev}
+              disabled={currentImageIndex === 0}
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white rounded-full" 
+              onClick={handleNext}
+              disabled={currentImageIndex === currentCategoryImages.length - 1}
+            >
+              <ChevronRight className="h-6 w-6" />
+            </Button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

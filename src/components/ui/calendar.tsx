@@ -51,11 +51,6 @@ function Calendar({
   
   // Function to check if a date is blocked (unavailable)
   function isDateBlocked(date: Date, blockedDates?: Date[]) {
-    // In our updated approach:
-    // - blockedDates contains ALL dates that should be blocked (not in availableDates)
-    // - we just need to check if the date exists in blockedDates
-    // - dates before today are also blocked
-    
     // Block dates in the past
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -77,7 +72,7 @@ function Calendar({
     );
     
     // Check if this date exists in our blocked dates array
-    return blockedDates.some(blockedDate => {
+    const isBlocked = blockedDates.some(blockedDate => {
       const normalizedBlockedDate = new Date(
         blockedDate.getFullYear(),
         blockedDate.getMonth(),
@@ -87,6 +82,34 @@ function Calendar({
       
       return normalizedDate.getTime() === normalizedBlockedDate.getTime();
     });
+    
+    // Special case: If this is a checkout date selection (not a check-in)
+    // We allow the first day of a booking period to be selected as checkout
+    if (isBlocked && mode === "range" && isDateRange(selected) && selected.from) {
+      // Is the date after the check-in date? (can't check out before checking in)
+      if (date > selected.from) {
+        // Check if this date is the first day of a booking period
+        // by checking if the previous day is NOT blocked
+        const previousDay = new Date(date);
+        previousDay.setDate(previousDay.getDate() - 1);
+        
+        // Only check the previous day if it's not in the past
+        if (previousDay >= today) {
+          // Check if previous day is available (not in blockedDates)
+          const isPreviousDayBlocked = blockedDates.some(blockedDate => 
+            isSameDay(previousDay, blockedDate)
+          );
+          
+          // If previous day is NOT blocked, this is the first day of a booking period
+          // Make it available for checkout
+          if (!isPreviousDayBlocked) {
+            return false; // Allow it to be selected
+          }
+        }
+      }
+    }
+    
+    return isBlocked;
   }
   
   // Generate days for a given month
@@ -201,13 +224,85 @@ function Calendar({
   
   // Check if there are blocked dates between two dates
   const hasBlockedDatesBetween = (start: Date, end: Date): boolean => {
-    return blockedDates.some(date => 
-      date > start && date < end
-    );
+    // We're only checking dates strictly between start and end
+    const dayAfterStart = new Date(start);
+    dayAfterStart.setDate(dayAfterStart.getDate() + 1);
+    
+    const dayBeforeEnd = new Date(end);
+    dayBeforeEnd.setDate(dayBeforeEnd.getDate() - 1);
+    
+    // If the range is adjacent days, there's nothing between them
+    if (dayAfterStart > dayBeforeEnd) {
+      return false;
+    }
+    
+    // Check every day in between (excluding start and end dates)
+    let currentDate = new Date(dayAfterStart);
+    while (currentDate <= dayBeforeEnd) {
+      // Check if this date is blocked
+      if (blockedDates.some(blockedDate => isSameDay(currentDate, blockedDate))) {
+        return true;
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    return false;
   };
   
   // Handle day click
   const handleDayClick = (day: Date) => {
+    // Special handling based on what the user is selecting
+    if (mode === "range" && isDateRange(selected)) {
+      const { from, to } = selected;
+      
+      // If we've already selected a range, reset to start a new selection
+      if (from && to) {
+        onSelect?.({ from: day, to: undefined });
+        return;
+      }
+      
+      // If we have a check-in date but no check-out date yet
+      if (from && !to) {
+        // Trying to select a date before check-in? Make it the new check-in
+        if (day < from) {
+          onSelect?.({ from: day, to: undefined });
+          return;
+        }
+        
+        // Is this day blocked? Check if it's the first day of a booking period
+        if (isDateBlocked(day, blockedDates)) {
+          // Check if it's the first day of a booking period
+          const previousDay = new Date(day);
+          previousDay.setDate(previousDay.getDate() - 1);
+          
+          const isPreviousDayBlocked = blockedDates.some(blockedDate => 
+            isSameDay(previousDay, blockedDate)
+          );
+          
+          // If previous day is NOT blocked, this is the first day of a booking period
+          // Allow it to be selected as checkout
+          if (!isPreviousDayBlocked && day > from) {
+            onSelect?.({ from, to: day });
+            return;
+          }
+          
+          setError("This date is blocked and cannot be selected");
+          return;
+        }
+        
+        // Check for blocked dates in between
+        if (hasBlockedDatesBetween(from, day)) {
+          setError("Cannot select a range with unavailable dates between");
+          onSelect?.({ from: day, to: undefined });
+        } else {
+          // Valid selection
+          onSelect?.({ from, to: day });
+        }
+        return;
+      }
+    }
+      
+    // Standard blocking check for new check-in date selection
     if (isDateBlocked(day, blockedDates)) {
       setError("This date is blocked and cannot be selected");
       return;
@@ -221,28 +316,8 @@ function Calendar({
       if (mode === "single") {
         onSelect(day);
       } else if (mode === "range") {
-        if (!selected || selected instanceof Date) {
-          onSelect({ from: day, to: undefined });
-        } else if (isDateRange(selected)) {
-          const { from } = selected;
-          if (!from) {
-            onSelect({ from: day, to: undefined });
-          } else {
-            // Determine the correct from/to dates based on which is earlier
-            const rangeStart = day < from ? day : from;
-            const rangeEnd = day < from ? from : day;
-            
-            // Check if there are blocked dates between the range
-            if (hasBlockedDatesBetween(rangeStart, rangeEnd)) {
-              // If blocked dates exist in range, don't allow selection
-              // Just update with the new date as "from" and clear "to"
-              setError("Cannot select a range with blocked dates between");
-              onSelect({ from: day, to: undefined });
-            } else {
-              onSelect({ from: rangeStart, to: rangeEnd });
-            }
-          }
-        }
+        // Start a new selection
+        onSelect({ from: day, to: undefined });
       }
     }
   };
