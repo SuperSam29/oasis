@@ -559,6 +559,7 @@ export default function PropertyBookingConfirmation() {
           <BookingPriceAlert
             message="Lowest price guarantee"
             subMessage="The rates listed in Altru Living website are minimum 5% less than those on Airbnb"
+            showPriceGuarantee={true}
             data-pol-id="p7g5mi"
             data-pol-file-name="property-booking-confirmation"
             data-pol-file-type="page"
@@ -634,6 +635,7 @@ export default function PropertyBookingConfirmation() {
                   property={property}
                   rating={{ value: 5.0, count: 4 }}
                   isSuperhost={true}
+                  showPriceGuarantee={true}
                   data-pol-id="7wlqft"
                   data-pol-file-name="property-booking-confirmation"
                   data-pol-file-type="page"

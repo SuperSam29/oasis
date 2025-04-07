@@ -1,15 +1,18 @@
 import { TagIcon } from "lucide-react";
+import LowestPriceGuaranteeSeal from "./lowest-price-guarantee-seal";
 
 interface BookingPriceAlertProps {
   message: string;
   subMessage?: string;
   type?: "discount" | "warning" | "info";
+  showPriceGuarantee?: boolean;
 }
 
 export default function BookingPriceAlert({
   message,
   subMessage,
   type = "discount",
+  showPriceGuarantee = false,
 }: BookingPriceAlertProps) {
   const getBgColor = () => {
     switch (type) {
@@ -39,11 +42,18 @@ export default function BookingPriceAlert({
 
   return (
     <div
-      className={`p-4 rounded-lg border ${getBgColor()}`}
+      className={`p-4 rounded-lg border ${getBgColor()} relative`}
       data-pol-id="womyf1"
       data-pol-file-name="booking-price-alert"
       data-pol-file-type="component"
     >
+      {/* Price Guarantee Seal */}
+      {showPriceGuarantee && (
+        <div className="absolute -top-4 -right-4 w-14 h-14">
+          <LowestPriceGuaranteeSeal className="w-full h-full" />
+        </div>
+      )}
+      
       <div
         className="flex gap-3"
         data-pol-id="r5ihzb"

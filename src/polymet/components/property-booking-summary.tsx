@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { StarIcon } from "lucide-react";
+import LowestPriceGuaranteeSeal from "./lowest-price-guarantee-seal";
 
 interface PropertyBookingSummaryProps {
   property: {
@@ -19,12 +20,14 @@ interface PropertyBookingSummaryProps {
     count: number;
   };
   isSuperhost?: boolean;
+  showPriceGuarantee?: boolean;
 }
 
 export default function PropertyBookingSummary({
   property,
   rating,
   isSuperhost = false,
+  showPriceGuarantee = true,
 }: PropertyBookingSummaryProps) {
   return (
     <div
@@ -34,7 +37,7 @@ export default function PropertyBookingSummary({
       data-pol-file-type="component"
     >
       <div
-        className="flex gap-4 items-start"
+        className="flex gap-4 items-start relative"
         data-pol-id="r1q27d"
         data-pol-file-name="property-booking-summary"
         data-pol-file-type="component"
@@ -55,19 +58,29 @@ export default function PropertyBookingSummary({
           />
         </div>
         <div
-          className="space-y-1"
+          className="space-y-1 flex-1"
           data-pol-id="43gvmw"
           data-pol-file-name="property-booking-summary"
           data-pol-file-type="component"
         >
-          <h3
-            className="font-medium line-clamp-2"
-            data-pol-id="ecaysk"
-            data-pol-file-name="property-booking-summary"
-            data-pol-file-type="component"
-          >
-            {property.title}
-          </h3>
+          <div className="flex items-start justify-between">
+            <h3
+              className="font-medium line-clamp-2"
+              data-pol-id="ecaysk"
+              data-pol-file-name="property-booking-summary"
+              data-pol-file-type="component"
+            >
+              {property.title}
+            </h3>
+            
+            {/* Price Guarantee Seal - positioned to the right */}
+            {showPriceGuarantee && (
+              <div className="ml-2 flex-shrink-0">
+                <LowestPriceGuaranteeSeal className="w-24 h-24" />
+              </div>
+            )}
+          </div>
+          
           <p
             className="text-sm text-muted-foreground"
             data-pol-id="lgspsn"
