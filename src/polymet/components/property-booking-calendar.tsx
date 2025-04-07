@@ -66,6 +66,10 @@ export default function PropertyBookingCalendar({
 
   // State for dynamic pricing
   const [dynamicPrice, setDynamicPrice] = useState<number | null>(null);
+  const [displayPrice, setDisplayPrice] = useState<number | null>(null); // Airbnb's price
+  const [actualBasePrice, setActualBasePrice] = useState<number | null>(null); // Our price without taxes
+  const [discountPercentage, setDiscountPercentage] = useState<number | null>(null);
+  const [totalPrice, setTotalPrice] = useState<number | null>(null); // Final price with taxes
   const [isPriceLoading, setIsPriceLoading] = useState(false);
   const [priceError, setPriceError] = useState<string | null>(null);
 
@@ -192,12 +196,18 @@ export default function PropertyBookingCalendar({
       const data = await response.json();
       console.log("Price API response:", data);
 
-      // Use the new response format - displayPrice is what we show on home page
+      // Use the complete response format with all price components
       const priceData = data?.data;
       
       if (priceData && priceData.displayPrice) {
-        // On the home page, we only display the displayPrice
-        setDynamicPrice(priceData.displayPrice);
+        // Store all pricing components in state
+        setDisplayPrice(priceData.displayPrice); // Original Airbnb price
+        setActualBasePrice(priceData.actualBasePrice); // Our discounted base price
+        setDiscountPercentage(priceData.discountPercentage); // % discount we offer
+        setTotalPrice(priceData.totalPrice); // Final price with taxes
+        
+        // For backward compatibility, keep using dynamicPrice
+        setDynamicPrice(priceData.totalPrice); // Now using total price (with taxes) as dynamic price
         
         // Store all pricing information in localStorage for booking confirmation page
         localStorage.setItem('bookingDisplayPrice', priceData.displayPrice.toString());
@@ -309,7 +319,7 @@ export default function PropertyBookingCalendar({
       return;
     }
 
-    if (checkInDate && checkOutDate && guestCount > 0 && dynamicPrice !== null && !isPriceLoading && !priceError) {
+    if (checkInDate && checkOutDate && guestCount > 0 && totalPrice !== null && !isPriceLoading && !priceError) {
       // Format dates as YYYY-MM-DD preserving the local date values
       const formatLocalDate = (date: Date) => {
         const year = date.getFullYear();
@@ -325,7 +335,7 @@ export default function PropertyBookingCalendar({
       localStorage.setItem('bookingHotelId', hotelId); // Store hotel ID for confirmation page
       
       // Store the DYNAMIC price (total for the stay) as bookingBasePrice for confirmation page logic
-      const nightlyPrice = numNights > 0 ? dynamicPrice / numNights : 0;
+      const nightlyPrice = numNights > 0 ? totalPrice / numNights : 0;
       localStorage.setItem('bookingBasePrice', nightlyPrice.toString());
 
       // Use propertyId in the navigation path
@@ -354,7 +364,7 @@ export default function PropertyBookingCalendar({
   };
 
   // Check if all required data is selected for booking and hotel ID exists
-  const isBookingReady = hotelId && checkInDate && checkOutDate && guestCount > 0 && dynamicPrice !== null && !isPriceLoading && !priceError;
+  const isBookingReady = hotelId && checkInDate && checkOutDate && guestCount > 0 && totalPrice !== null && !isPriceLoading && !priceError;
 
   // If no hotel ID is found, show an error message instead of the calendar
   if (showHotelIdError) {
@@ -463,18 +473,46 @@ export default function PropertyBookingCalendar({
             {/* Optionally add retry button? */}
           </div>
         )}
-        {dynamicPrice !== null && numNights > 0 && (
-          <div className="flex justify-between items-center mb-2">
-            {/* Display total price for the stay */}
-            <span>Total for {numNights} nights</span> 
-            <span>₹{dynamicPrice.toLocaleString()}</span>
+        {displayPrice !== null && actualBasePrice !== null && numNights > 0 && (
+          <div className="space-y-2">
+            {/* Original price (Airbnb price) */}
+            <div className="flex justify-between items-center">
+              <span>Original price</span>
+              <span className={discountPercentage ? "line-through text-gray-500" : ""}>
+                ₹{displayPrice.toLocaleString()}
+              </span>
+            </div>
+            
+            {/* Our discounted price (if there is a discount) */}
+            {discountPercentage && discountPercentage > 0 && (
+              <div className="flex justify-between items-center text-green-600">
+                <span>Our price ({discountPercentage}% off)</span>
+                <span>₹{actualBasePrice.toLocaleString()}</span>
+              </div>
+            )}
+
+            {/* Taxes & fees (difference between actualBasePrice and totalPrice) */}
+            {totalPrice && actualBasePrice && totalPrice > actualBasePrice && (
+              <div className="flex justify-between items-center text-gray-600 text-sm">
+                <span>Taxes & fees</span>
+                <span>₹{(totalPrice - actualBasePrice).toLocaleString()}</span>
+              </div>
+            )}
+            
+            {/* Total price with taxes */}
+            {totalPrice && (
+              <div className="flex justify-between items-center font-semibold border-t pt-2 mt-2">
+                <span>Total</span>
+                <span>₹{totalPrice.toLocaleString()}</span>
+              </div>
+            )}
           </div>
         )}
         
         <button
           onClick={handleBookingConfirmation}
           disabled={!isBookingReady}
-          className={`w-full p-3 rounded-lg text-white font-medium transition-colors ${isBookingReady ? 'bg-black hover:bg-gray-800' : 'bg-gray-300 cursor-not-allowed'}`}
+          className={`w-full p-3 rounded-lg text-white font-medium transition-colors mt-4 ${isBookingReady ? 'bg-black hover:bg-gray-800' : 'bg-gray-300 cursor-not-allowed'}`}
         >
           {isBookingReady ? 'Reserve' : (isPriceLoading ? 'Calculating...' : (priceError ? 'Try Again Later' : 'Select dates'))}
         </button>

@@ -648,7 +648,12 @@ export default function PropertyBookingConfirmation() {
                 {/* Price Breakdown */}
                 {pricing ? (
                   <div className="booking-confirmation-price-details">
-                    <PropertyPriceBreakdown pricing={pricing} />
+                    <PropertyPriceBreakdown 
+                      basePrice={pricing.displayPrice / pricing.nights}
+                      nights={pricing.nights}
+                      discountPercentage={pricing.discountPercentage}
+                      totalPrice={pricing.totalPrice}
+                    />
                     {pricing.discountPercentage > 0 && (
                       <BookingPriceAlert
                         message={`You're saving ${pricing.discountPercentage}% with this booking`}
