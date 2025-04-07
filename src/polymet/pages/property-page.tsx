@@ -124,7 +124,7 @@ export default function PropertyPage() {
           {/* Location */}
           <PropertyLocationMapWrapper
             location={property.location}
-            googleMapsUrl="https://maps.app.goo.gl/S9e4x7NnxkBhvEQ28"
+            googleMapsUrl="https://maps.app.goo.gl/PyG6vJHgLL5WKcCL8"
             data-pol-id="f7owrc"
             data-pol-file-name="property-page"
             data-pol-file-type="page"

@@ -13,7 +13,7 @@ interface PropertyLocationMapSimplifiedProps {
 
 export default function PropertyLocationMapSimplified({
   location,
-  googleMapsUrl = "https://maps.app.goo.gl/S9e4x7NnxkBhvEQ28",
+  googleMapsUrl = "https://maps.app.goo.gl/PyG6vJHgLL5WKcCL8",
 }: PropertyLocationMapSimplifiedProps) {
   const handleOpenGoogleMaps = () => {
     window.open(googleMapsUrl, "_blank");

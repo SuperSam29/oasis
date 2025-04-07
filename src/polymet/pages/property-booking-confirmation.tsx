@@ -345,7 +345,7 @@ export default function PropertyBookingConfirmation() {
 
       // 6. Configure and Open Razorpay Checkout
       const options = {
-        key: "rzp_test_sUTYh8mAnAEc1M", // Your Razorpay Key ID
+        key: "rzp_live_oletqM3UiNy6pl", // Your Razorpay Key ID
         amount: amount, // amount in smallest currency unit (paise)
         currency: currency,
         name: "Altru Living Booking", // Your company name

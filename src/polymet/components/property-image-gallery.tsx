@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import { GridIcon, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { groupImagesByCategory } from "../data/property-data";
 
 interface PropertyImage {
   id: number;
@@ -38,23 +39,15 @@ export default function PropertyImageGallery({
     );
   }
 
-  // Organize images by category
-  const categoriesMap: Record<string, PropertyImage[]> = {};
-  const categories: string[] = [];
-  const allImagesFlat: PropertyImage[] = [];
+  // Use the new groupImagesByCategory function
+  const groupedCategories = groupImagesByCategory(images);
+  const categories = groupedCategories.map(group => group.title);
+  const categoriesMap: Record<string, PropertyImage[]> = groupedCategories.reduce((acc, group) => {
+    acc[group.title] = group.images as PropertyImage[];
+    return acc;
+  }, {} as Record<string, PropertyImage[]>);
+  const allImagesFlat: PropertyImage[] = images;
   
-  images.forEach(image => {
-    if (!image.category) return;
-    
-    if (!categoriesMap[image.category]) {
-      categoriesMap[image.category] = [];
-      categories.push(image.category);
-    }
-    
-    categoriesMap[image.category].push(image);
-    allImagesFlat.push(image);
-  });
-
   // Set default active category when modal opens
   useEffect(() => {
     if (showModal && categories.length > 0 && !activeCategory) {
@@ -130,13 +123,16 @@ export default function PropertyImageGallery({
 
       {/* --- Main Gallery Modal --- */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-none w-full h-full md:max-w-7xl md:h-[95vh] p-0 bg-white rounded-none md:rounded-lg">
+        <DialogContent className="max-w-none w-full h-full md:max-w-7xl md:h-[95vh] p-0 bg-white rounded-none md:rounded-lg md:flex md:flex-col">
+          {/* Removed the built-in close button */}
           {/* Fixed Header */}
           <div className="border-b bg-white p-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold">Photo tour</h2>
-            <Button variant="ghost" size="icon" className="rounded-full" onClick={() => setShowModal(false)}>
-              <X className="h-5 w-5" />
-            </Button>
+            <DialogClose asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <X className="h-5 w-5" />
+              </Button>
+            </DialogClose>
           </div>
           
           {/* Tab Navigation */}
