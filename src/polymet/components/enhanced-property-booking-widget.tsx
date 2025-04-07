@@ -78,41 +78,7 @@ export default function EnhancedPropertyBookingWidget({
       {nightsCount && totalPrice !== null && (
         <>
           <Separator className="my-4" />
-          <div
-            className="space-y-2"
-            data-pol-id="2x875y"
-            data-pol-file-name="enhanced-property-booking-widget"
-            data-pol-file-type="component"
-          >
-            <div
-              className="flex justify-between"
-              data-pol-id="7o8m7o"
-              data-pol-file-name="enhanced-property-booking-widget"
-              data-pol-file-type="component"
-            >
-              <span>
-                {pricing.currency}
-                {pricing.basePrice} x {nightsCount} nights
-              </span>
-              <span>
-                {pricing.currency}
-                {totalPrice.toLocaleString()}
-              </span>
-            </div>
-            {/* Add more details like taxes/fees if needed */}
-            <div
-              className="flex justify-between font-semibold text-lg pt-2"
-              data-pol-id="n9a2o4"
-              data-pol-file-name="enhanced-property-booking-widget"
-              data-pol-file-type="component"
-            >
-              <span>Total</span>
-              <span>
-                {pricing.currency}
-                {totalPrice.toLocaleString()}
-              </span>
-            </div>
-          </div>
+          {/* Price breakdown element removed as requested */}
         </>
       )}
     </div>

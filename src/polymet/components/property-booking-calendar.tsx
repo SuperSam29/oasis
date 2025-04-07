@@ -164,8 +164,19 @@ export default function PropertyBookingCalendar({
     setPriceError(null);
     setDynamicPrice(null); // Clear previous price
 
-    const checkInFormatted = checkIn.toISOString().split('T')[0]; // YYYY-MM-DD
-    const checkOutFormatted = checkOut.toISOString().split('T')[0]; // YYYY-MM-DD
+    // Fix: Use local date format rather than UTC to prevent date shift
+    // Format dates as YYYY-MM-DD preserving the local date values 
+    const formatLocalDate = (date: Date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const checkInFormatted = formatLocalDate(checkIn);
+    const checkOutFormatted = formatLocalDate(checkOut);
+    
+    console.log(`Local date formatting - Check-in: ${checkInFormatted}, Check-out: ${checkOutFormatted}`);
 
     // Use hotelId from state, which comes from URL
     const apiUrl = `https://api-nami.lucify.in/api/v1/booking/availability-pricing?hotelId=${hotelId}&checkInAt=${checkInFormatted}&checkOutAt=${checkOutFormatted}`;
@@ -299,15 +310,23 @@ export default function PropertyBookingCalendar({
     }
 
     if (checkInDate && checkOutDate && guestCount > 0 && dynamicPrice !== null && !isPriceLoading && !priceError) {
-      // Store booking details in localStorage
-      localStorage.setItem('bookingCheckIn', checkInDate.toISOString());
-      localStorage.setItem('bookingCheckOut', checkOutDate.toISOString());
+      // Format dates as YYYY-MM-DD preserving the local date values
+      const formatLocalDate = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
+      // Store booking details in localStorage with local date formatting
+      localStorage.setItem('bookingCheckIn', formatLocalDate(checkInDate));
+      localStorage.setItem('bookingCheckOut', formatLocalDate(checkOutDate));
       localStorage.setItem('bookingGuests', guestCount.toString());
       localStorage.setItem('bookingHotelId', hotelId); // Store hotel ID for confirmation page
       
       // Store the DYNAMIC price (total for the stay) as bookingBasePrice for confirmation page logic
       const nightlyPrice = numNights > 0 ? dynamicPrice / numNights : 0;
-      localStorage.setItem('bookingBasePrice', nightlyPrice.toString()); 
+      localStorage.setItem('bookingBasePrice', nightlyPrice.toString());
 
       // Use propertyId in the navigation path
       window.location.href = `/property/${propertyId}/booking`;
