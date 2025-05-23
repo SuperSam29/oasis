@@ -96,61 +96,75 @@ function processNamiAvailabilityResponse(apiResponse: any): NamiCalendarData {
       };
     }
     
-    // Based on the actual API response, it has:
-    // - data.availableDates: Array of available date strings
-    // - data.blockedDates: Array of blocked date strings
-    // - data.bookedDates: Array of booking period objects
-    
-    // Process available dates
+    // Handle availableDates - directly available from API
     if (Array.isArray(apiResponse.data.availableDates)) {
       result.availableDates = apiResponse.data.availableDates;
       console.log(`Found ${result.availableDates.length} available dates`);
     }
     
-    // Process blocked dates
+    // Process unavailable dates (combine all blocked and booked dates)
     const unavailableDates = new Set<string>();
     
-    // Add explicitly blocked dates
+    // 1. Add explicitly blocked dates
     if (Array.isArray(apiResponse.data.blockedDates)) {
       apiResponse.data.blockedDates.forEach((date: string) => {
         unavailableDates.add(date);
       });
     }
     
-    // Process booking periods and extract the dates within them
+    // 2. Process booked dates from our system
     if (Array.isArray(apiResponse.data.bookedDates)) {
-      apiResponse.data.bookedDates.forEach((bookingStr: string) => {
-        try {
-          // Parse the booking string which looks like "@{startDate=2025-04-02; endDate=2025-04-03}"
-          const startDateMatch = bookingStr.match(/startDate=([^;]+)/);
-          const endDateMatch = bookingStr.match(/endDate=([^}]+)/);
-          
-          if (startDateMatch && startDateMatch[1] && endDateMatch && endDateMatch[1]) {
-            const startDate = startDateMatch[1];
-            const endDate = endDateMatch[1];
-            
-            // Add to booking periods
-            result.bookingPeriods.push({
-              start: startDate,
-              end: endDate,
-              type: 'booked'
-            });
-            
-            // Add all dates in this range to unavailable dates
-            const dates = getDatesInRange(startDate, endDate);
-            dates.forEach(date => unavailableDates.add(date));
-          }
-        } catch (err) {
-          console.error('Error parsing booking period:', bookingStr, err);
-        }
+      apiResponse.data.bookedDates.forEach((booking: {startDate: string, endDate: string}) => {
+        // Add booking period
+        result.bookingPeriods.push({
+          start: booking.startDate,
+          end: booking.endDate,
+          type: 'booked'
+        });
+        
+        // Add all dates in this range to unavailable dates
+        const dates = getDatesInRange(booking.startDate, booking.endDate);
+        dates.forEach(date => unavailableDates.add(date));
       });
     }
     
-    // Convert the Set to an array
+    // 3. Process Airbnb blocked dates
+    if (Array.isArray(apiResponse.data.airbnbBlockedDates)) {
+      apiResponse.data.airbnbBlockedDates.forEach((blocking: {startDate: string, endDate: string}) => {
+        // Add blocking period
+        result.bookingPeriods.push({
+          start: blocking.startDate,
+          end: blocking.endDate,
+          type: 'unavailable'
+        });
+        
+        // Add all dates in this range to unavailable dates
+        const dates = getDatesInRange(blocking.startDate, blocking.endDate);
+        dates.forEach(date => unavailableDates.add(date));
+      });
+    }
+    
+    // 4. Process Airbnb booked dates
+    if (Array.isArray(apiResponse.data.airbnbBookedDates)) {
+      apiResponse.data.airbnbBookedDates.forEach((booking: {startDate: string, endDate: string}) => {
+        // Add booking period
+        result.bookingPeriods.push({
+          start: booking.startDate,
+          end: booking.endDate,
+          type: 'booked'
+        });
+        
+        // Add all dates in this range to unavailable dates
+        const dates = getDatesInRange(booking.startDate, booking.endDate);
+        dates.forEach(date => unavailableDates.add(date));
+      });
+    }
+    
+    // Convert the Set to an array for the final unavailable dates
     result.unavailableDates = Array.from(unavailableDates);
     
     console.log(`Processed ${result.availableDates.length} available dates and ${result.unavailableDates.length} unavailable dates`);
-    console.log(`Found ${result.bookingPeriods.length} booking periods`);
+    console.log(`Found ${result.bookingPeriods.length} booking/blocking periods`);
     
     return result;
   } catch (error) {
@@ -166,7 +180,7 @@ function processNamiAvailabilityResponse(apiResponse: any): NamiCalendarData {
 }
 
 /**
- * Helper function to get all dates in a range (inclusive)
+ * Helper function to get all dates in a range (inclusive of both start and end dates)
  * @param startDateStr Start date in YYYY-MM-DD format
  * @param endDateStr End date in YYYY-MM-DD format
  * @returns Array of date strings in YYYY-MM-DD format
@@ -187,8 +201,8 @@ function getDatesInRange(startDateStr: string, endDateStr: string): string[] {
   // Create the current date starting from start date
   const currentDate = new Date(startDate);
   
-  // Loop until we reach the end date
-  while (currentDate < endDate) {
+  // Loop until we reach the end date (inclusive)
+  while (currentDate <= endDate) {
     dates.push(formatDate(currentDate));
     currentDate.setDate(currentDate.getDate() + 1);
   }

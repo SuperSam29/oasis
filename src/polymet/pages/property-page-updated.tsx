@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom";
 import PropertyHeader from "@/polymet/components/property-header";
-import PropertyImageGallery from "@/polymet/components/property-image-gallery";
 import PropertyAmenitiesList from "@/polymet/components/property-amenities-list";
 import PropertyBookingWidgetUpdated from "@/polymet/components/property-booking-widget-updated";
 import PropertyLocationMapWrapper from "@/polymet/components/property-location-map-wrapper";
@@ -30,35 +29,6 @@ export default function PropertyPageUpdated() {
         data-pol-file-name="property-page-updated"
         data-pol-file-type="page"
       />
-
-      {/* Property Images */}
-      <div
-        className="mt-6"
-        data-pol-id="0noaog"
-        data-pol-file-name="property-page-updated"
-        data-pol-file-type="page"
-      >
-        <PropertyImageGallery
-          images={property.images}
-          title={property.title}
-          data-pol-id="g62pnf"
-          data-pol-file-name="property-page-updated"
-          data-pol-file-type="page"
-        />
-      </div>
-
-      {/* Booking Widget for Mobile */}
-      <div
-        className="mt-6 block md:hidden"
-        data-pol-file-name="property-page-updated"
-        data-pol-file-type="page"
-      >
-        <PropertyBookingWidgetUpdated
-          pricing={property.pricing}
-          data-pol-file-name="property-page-updated"
-          data-pol-file-type="page"
-        />
-      </div>
 
       <div
         className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8"
@@ -145,6 +115,19 @@ export default function PropertyPageUpdated() {
             data-pol-file-type="page"
           />
         </div>
+      </div>
+
+      {/* Booking Widget for Mobile */}
+      <div
+        className="mt-6 block md:hidden"
+        data-pol-file-name="property-page-updated"
+        data-pol-file-type="page"
+      >
+        <PropertyBookingWidgetUpdated
+          pricing={property.pricing}
+          data-pol-file-name="property-page-updated"
+          data-pol-file-type="page"
+        />
       </div>
     </div>
   );

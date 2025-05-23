@@ -2,7 +2,6 @@
 
 import { useParams } from "react-router-dom";
 import PropertyHeader from "@/polymet/components/property-header";
-import PropertyImageGallery from "@/polymet/components/property-image-gallery";
 import PropertyAmenitiesList from "@/polymet/components/property-amenities-list";
 import PropertyLocationMapWrapper from "@/polymet/components/property-location-map-wrapper";
 import EnhancedPropertyBookingWidget from "@/polymet/components/enhanced-property-booking-widget";
@@ -29,21 +28,6 @@ export default function PropertyPageEnhanced() {
         data-pol-file-name="property-page-enhanced"
         data-pol-file-type="page"
       />
-
-      <div
-        className="mt-6"
-        data-pol-id="pl1deh"
-        data-pol-file-name="property-page-enhanced"
-        data-pol-file-type="page"
-      >
-        <PropertyImageGallery
-          images={property.images}
-          title={property.title}
-          data-pol-id="3ma8w2"
-          data-pol-file-name="property-page-enhanced"
-          data-pol-file-type="page"
-        />
-      </div>
 
       {/* Booking Widget for Mobile */}
       <div
