@@ -37,21 +37,21 @@ export const groupImagesByCategory = (images: any[]) => {
 
 export const PROPERTY_DATA = {
   id: "prop123",
-  title: "Oasis by Altru Living",
+  title: "Tranquil by Altru Living",
   location: {
-    city: "Anjuna",
+    city: "Arpora",
     state: "",
     country: "India",
     description:
-      "Located in the heart of Anjuna, close to famous beaches and nightlife.",
-    coordinates: { lat: 15.5615, lng: 73.7641 },
+      "Cosy 1BHK Flat Near Anjuna & Vagator Beach.",
+    coordinates: { lat: 15.576064016260707, lng: 73.7612930120823 },
   },
   details: {
-    type: "Entire apartment",
-    guests: 5,
-    bedrooms: 2,
+    type: "Entire rental unit",
+    guests: 3,
+    bedrooms: 1,
     beds: 2,
-    baths: 2,
+    baths: 1,
   },
   images: [
     // Living Room
@@ -124,97 +124,95 @@ export const PROPERTY_DATA = {
       "Hair dryer",
       "Cleaning products",
       "Shampoo",
-      "Natural (no harmful Chemicals) conditioner",
-      "Natural (no harmful Chemicals) body soap",
+      "Conditioner",
+      "Body soap",
+      "Bidet",
+      "Outdoor shower",
       "Hot water",
       "Shower gel",
     ],
-
+  
     bedroomAndLaundry: [
-      "Washing machine",
-      "Free dryer – In unit",
+      "Essentials",
+      "Towels, bed sheets, soap and toilet paper",
       "Hangers",
       "Bed linen",
-      "Cotton linen",
       "Extra pillows and blankets",
-      "Room-darkening blinds",
       "Iron",
       "Clothes drying rack",
-      "Safe",
-      "Clothes storage: wardrobe, wardrobe and chest of drawers",
+      "Clothes storage",
     ],
-
+  
     entertainment: [
-      "TV", 
+      "TV",
       "Books and reading material",
-      "Cinema",
     ],
-    
-    family: ["Window guards"],
-    
+  
+    family: [
+      "Board games",
+      "Outdoor playground",
+      "An outdoor area equipped with play structures for children",
+    ],
+  
+    heatingAndCooling: [
+      "Air conditioning",
+      "Ceiling fan",
+      "Heating",
+    ],
+  
     homeSafety: [
       "Fire extinguisher",
       "First aid kit",
     ],
-    
-    heatingAndCooling: [
-      "AC – split-type ductless system", 
-      "Ceiling fan", 
-      "Heating"
+  
+    internetAndOffice: [
+      "Wifi",
+      "Dedicated workspace",
     ],
-    
-    internetAndOffice: ["Wifi", "Dedicated workspace"],
-    
+  
     kitchenAndDining: [
       "Kitchen",
       "Space where guests can cook their own meals",
-      "Samsung refrigerator",
+      "Fridge",
       "Microwave",
       "Cooking basics",
       "Pots and pans, oil, salt and pepper",
       "Dishes and cutlery",
       "Bowls, chopsticks, plates, cups, etc.",
       "Freezer",
-      "Cooker",
-      "Kettle",
+      "Oven",
     ],
-
+  
     locationFeatures: [
       "Launderette nearby",
-      "Resort access",
+      "Free resort access",
       "Guests can use nearby resort facilities",
     ],
-    
-    outdoor: [
-      "Garden",
-      "An open space on the property usually covered in grass",
-      "Bikes",
-    ],
-
+  
     parkingAndFacilities: [
-      "Free residential garage on premises – 1 space", 
+      "Free parking on premises",
       "Pool",
-      "Lift",
-      "The home or building has a lift that's at least 52 inches (132cm) deep and a doorway at least 32 inches (81cm) wide",
     ],
-    
+  
     services: [
       "Pets allowed",
       "Assistance animals are always allowed",
       "Long-term stays allowed",
       "Allow stays of 28 days or more",
       "Self check-in",
-      "Lockbox",
-      "Housekeeping available 12 hours a day, every day",
+      "Smart lock",
+      "Cleaning available during stay",
     ],
   },
+  
   unavailableAmenities: [
     "Exterior security cameras on property",
-    "Essentials",
+    "Washing machine",
+    "Dryer",
     "Smoke alarm",
     "Carbon monoxide alarm",
   ],
-
+  
   unavailableNotes: {
     "Smoke alarm":
       "This place may not have a smoke detector. Contact the host with any questions.",
@@ -222,13 +220,10 @@ export const PROPERTY_DATA = {
       "This place may not have a carbon monoxide detector. Contact the host with any questions.",
   },
   highlightedAmenities: [
-    "Kitchen",
     "Wifi",
-    "Dedicated workspace",
-    "Free residential garage on premises – 1 space",
-    "Pool",
     "TV",
-    "Washing machine",
-    "Free dryer – In unit",
+    "Pool",
+    "Kitchen",
+    "Dedicated workspace",
   ],
 };
