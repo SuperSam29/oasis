@@ -20,7 +20,7 @@ interface PropertyLocationMapProps {
 
 export default function PropertyLocationMap({
   location,
-  googleMapsUrl = "https://maps.app.goo.gl/S9e4x7NnxkBhvEQ28",
+  googleMapsUrl = "https://maps.app.goo.gl/wtbwd87CJmQPECYk6",
 }: PropertyLocationMapProps) {
   const [isZoomed, setIsZoomed] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);

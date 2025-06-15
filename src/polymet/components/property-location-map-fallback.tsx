@@ -13,7 +13,7 @@ interface PropertyLocationMapFallbackProps {
 
 export default function PropertyLocationMapFallback({
   location,
-  googleMapsUrl = "https://maps.app.goo.gl/S9e4x7NnxkBhvEQ28",
+  googleMapsUrl = "https://maps.app.goo.gl/wtbwd87CJmQPECYk6",
 }: PropertyLocationMapFallbackProps) {
   const handleOpenGoogleMaps = () => {
     window.open(googleMapsUrl, "_blank");
